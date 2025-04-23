@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <title>購物車</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Noto Sans TC", sans-serif;
+            }
+        </style>
+    </head>
+    <body class="bg-[#fdfaf6] text-[#3f3f3f] min-h-screen pb-28">
+        <!-- 返回鍵 -->
+        <a
+            onclick="history.back()"
+            class="fixed top-4 left-4 bg-white text-gray-700 px-3 py-2 rounded-full shadow hover:bg-gray-200 flex items-center space-x-1 z-50"
+        >
+            <span>🔙</span><span class="hidden sm:inline">返回</span>
+        </a>
+
+        <div class="max-w-3xl mx-auto px-4 pt-16">
+            <h1 class="text-2xl font-bold text-center mb-6">🛒 購物車清單</h1>
+
+            <ul id="cartList" class="space-y-4"></ul>
+
+            <div class="mt-8 bg-white rounded-xl p-4 shadow">
+                <div class="text-right text-lg font-semibold mb-4">
+                    訂單小計：$<span id="subtotal">0</span>
+                </div>
+
+                <label class="block font-semibold mb-1">桌號：</label>
+                <input
+                    id="tableNo"
+                    type="text"
+                    class="w-full p-2 border rounded mb-4"
+                    placeholder="請輸入桌號"
+                />
+
+                <label class="block font-semibold mb-1">備註：</label>
+                <textarea
+                    id="note"
+                    class="w-full p-2 border rounded mb-4 text-sm"
+                    placeholder="例如：先上飲料..."
+                ></textarea>
+
+                <button
+                    onclick="submitOrder()"
+                    class="w-full bg-orange-500 text-white p-3 rounded-lg font-bold hover:bg-orange-600"
+                >
+                    ✅ 送出訂單
+                </button>
+            </div>
+        </div>
+
+        <script>
+            let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+            const list = document.getElementById("cartList");
+            const subtotalDisplay = document.getElementById("subtotal");
+
+            function renderCart() {
+                list.innerHTML = "";
+                let total = 0;
+
+                if (!cart.length) {
+                    list.innerHTML =
+                        '<li class="text-center text-red-500">目前購物車是空的</li>';
+                    subtotalDisplay.textContent = "0";
+                    return;
+                }
+
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.qty;
+                    total += itemTotal;
+
+                    const li = document.createElement("li");
+                    li.className =
+                        "bg-white p-4 rounded-lg shadow flex flex-col space-y-2";
+
+                    li.innerHTML = `
+        <div class="font-bold">${item.name} ${
+                        item.addons?.length
+                            ? `（${item.addons.join("、")}）`
+                            : ""
+                    }</div>
+        <div class="text-sm text-gray-600">單價：$${item.price}</div>
+        <div class="flex items-center space-x-2">
+            <label class="text-sm">數量：</label>
+            <div class="flex items-center space-x-1">
+            <button onclick="changeQty(${index}, -1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
+            <span id="qty-${index}" class="min-w-[2rem] text-center">${
+                        item.qty
+                    }</span>
+            <button onclick="changeQty(${index}, 1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <label class="text-sm">備註：</label>
+            <input type="text" value="${
+                item.note || ""
+            }" onchange="updateNote(${index}, this.value)" class="w-1/2 p-1 border rounded text-sm" />
+        </div>
+        <div class="text-sm text-gray-500">小計：$${itemTotal}</div>
+        <button onclick="removeItem(${index})" class="text-red-500 hover:underline text-sm self-end">🗑 刪除</button>
+        `;
+
+                    list.appendChild(li);
+                });
+
+                subtotalDisplay.textContent = total;
+            }
+
+            function changeQty(index, delta) {
+                cart[index].qty = Math.max(1, cart[index].qty + delta);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                renderCart();
+            }
+
+            function updateNote(index, value) {
+                cart[index].note = value;
+                localStorage.setItem("cart", JSON.stringify(cart));
+            }
+
+            function removeItem(index) {
+                cart.splice(index, 1);
+                localStorage.setItem("cart", JSON.stringify(cart));
+                renderCart();
+            }
+
+            async function submitOrder() {
+                const table_no = document.getElementById("tableNo").value;
+                const note = document.getElementById("note").value;
+
+                if (!cart.length) {
+                    alert("購物車是空的");
+                    return;
+                }
+
+                // ⬅️ 加上這行計算總金額
+                const total = cart.reduce(
+                    (sum, item) => sum + item.price * item.qty,
+                    0
+                );
+
+                const res = await fetch("/api/order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        items: cart,
+                        table_no,
+                        note,
+                        total,
+                    }), // ⬅️ 加入 total
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    alert(`✅ 訂單送出成功！總金額：$${result.total}`);
+                    localStorage.removeItem("cart");
+                    location.href = "/";
+                } else {
+                    alert(`❌ 發生錯誤：${result.error}`);
+                }
+            }
+
+            renderCart();
+        </script>
+    </body>
+</html>

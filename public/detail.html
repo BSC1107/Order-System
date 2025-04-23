@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <title>商品詳情</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Noto Sans TC", sans-serif;
+            }
+        </style>
+    </head>
+    <body class="bg-[#fdfaf6] text-[#3f3f3f] min-h-screen pb-24">
+        <!-- 返回按鈕 -->
+        <a
+            onclick="history.back()"
+            class="fixed top-4 left-4 bg-white text-gray-700 px-3 py-2 rounded-full shadow hover:bg-gray-200 flex items-center space-x-1 z-50"
+        >
+            <span>🔙</span><span class="hidden sm:inline">返回</span>
+        </a>
+
+        <div class="max-w-md mx-auto px-4 pt-16">
+            <div class="bg-white rounded-xl shadow p-6">
+                <div class="flex flex-col items-center mb-4">
+                    <div
+                        class="w-28 h-28 rounded-full overflow-hidden bg-gray-100 mb-3"
+                    >
+                        <img
+                            id="itemImage"
+                            src="https://via.placeholder.com/120"
+                            alt="商品圖片"
+                            class="w-full h-full object-cover"
+                        />
+                    </div>
+                    <h1 id="itemName" class="text-xl font-bold">商品名稱</h1>
+                    <p id="itemPrice" class="text-orange-500 text-lg font-bold">
+                        價格
+                    </p>
+                </div>
+
+                <div id="addonsContainer" class="mb-4"></div>
+
+                <label class="block font-semibold mb-1">數量：</label>
+                <div class="flex items-center space-x-2 mb-4">
+                    <button
+                        onclick="changeQty(-1)"
+                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                        -
+                    </button>
+                    <span id="qtyDisplay" class="min-w-[2rem] text-center"
+                        >1</span
+                    >
+                    <button
+                        onclick="changeQty(1)"
+                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                        +
+                    </button>
+                </div>
+
+                <label class="block font-semibold mb-1">備註：</label>
+                <textarea
+                    id="note"
+                    class="w-full p-2 border rounded mb-4"
+                    placeholder="例如：不要菜 美乃滋..."
+                ></textarea>
+
+                <button
+                    onclick="addToCart()"
+                    class="w-full bg-orange-500 text-white p-3 rounded-lg font-bold hover:bg-orange-600"
+                >
+                    加入購物車
+                </button>
+            </div>
+        </div>
+
+        <script>
+            let item = null;
+            let qty = 1;
+
+            async function loadItem() {
+                const params = new URLSearchParams(location.search);
+                const itemId = params.get("id");
+                const res = await fetch("/data/menu.json");
+                const data = await res.json();
+
+                for (const category of data) {
+                    const found = category.items.find((i) => i.id === itemId);
+                    if (found) {
+                        item = found;
+                        break;
+                    }
+                }
+
+                if (!item) {
+                    document.body.innerHTML =
+                        '<p class="text-center text-red-500 mt-20">找不到該商品</p>';
+                    return;
+                }
+
+                document.getElementById("itemName").textContent = item.name;
+                document.getElementById(
+                    "itemPrice"
+                ).textContent = `$${item.price}`;
+                if (item.image)
+                    document.getElementById("itemImage").src = item.image;
+
+                const addonContainer =
+                    document.getElementById("addonsContainer");
+                if (item.addons && item.addons.length) {
+                    addonContainer.innerHTML =
+                        '<label class="block font-semibold mb-2">加料選項：</label>';
+                    item.addons.forEach((addon) => {
+                        const id = `addon-${addon}`;
+                        addonContainer.innerHTML += `
+            <label class="block mb-1">
+            <input type="checkbox" id="${id}" value="${addon}" class="mr-2">
+            ${addon}
+            </label>`;
+                    });
+                }
+            }
+
+            function changeQty(delta) {
+                qty = Math.max(1, qty + delta);
+                document.getElementById("qtyDisplay").textContent = qty;
+            }
+
+            function addToCart() {
+                const note = document.getElementById("note").value;
+                const addons = [];
+
+                if (item.addons) {
+                    item.addons.forEach((addon) => {
+                        const checkbox = document.getElementById(
+                            `addon-${addon}`
+                        );
+                        if (checkbox && checkbox.checked) addons.push(addon);
+                    });
+                }
+
+                const cartItem = {
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    qty,
+                    addons,
+                    note,
+                };
+
+                const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+                cart.push(cartItem);
+                localStorage.setItem("cart", JSON.stringify(cart));
+
+                alert("✅ 已加入購物車！");
+                location.href = "/";
+            }
+
+            loadItem();
+        </script>
+    </body>
+</html>

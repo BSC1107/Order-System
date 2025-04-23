@@ -1,0 +1,20 @@
+### 查詢訂單
+GET http://localhost:3000/api/order
+
+### 送出訂單
+POST http://localhost:3000/api/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "id": "chicken_bento",
+      "name": "雞腿便當",
+      "price": 120,
+      "qty": 2,
+      "addons": ["加飯", "加蛋"]
+    }
+  ],
+  "note": "多一點飯、不要辣",
+  "table_no": "A1"
+}
