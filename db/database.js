@@ -1,9 +1,21 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const fs = require("fs");
 
-const dbPath = process.env.RENDER
-    ? "/mnt/data/orders.db" // ✅ Render 會自動建立這個資料夾，直接使用即可
-    : path.resolve(__dirname, "orders.db");
+let dbPath = path.resolve(__dirname, "orders.db");
+
+// ✅ 如果是在 Render，優先嘗試使用 /mnt/data
+if (process.env.RENDER) {
+    const renderPath = "/mnt/data/orders.db";
+
+    try {
+        fs.accessSync("/mnt/data", fs.constants.W_OK); // 嘗試檢查寫入權限
+        dbPath = renderPath;
+        console.log("📂 Render 寫入權限確認 ✅ 使用 /mnt/data/orders.db");
+    } catch (err) {
+        console.warn("⚠️ 無法寫入 /mnt/data，改用本地資料庫");
+    }
+}
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
