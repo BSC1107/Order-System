@@ -20,7 +20,7 @@
         <div id="orders" class="space-y-4 max-w-4xl mx-auto"></div>
 
         <!-- 聲音提示 -->
-        <audio id="ding" src="/ding.mp3" preload="auto"></audio>
+        <audio id="ding" src="/zding.mp3" preload="auto"></audio>
 
         <script>
             let currentOrderIds = [];
@@ -30,7 +30,6 @@
                     const res = await fetch("/api/order/today");
                     const orders = await res.json();
 
-                    // 檢查是否有新訂單（用 ID 數量判斷）
                     const newIds = orders.map((o) => o.id);
                     const hasNew = newIds.some(
                         (id) => !currentOrderIds.includes(id)
@@ -70,15 +69,25 @@
 
                     const itemList = order.items
                         .map((item) => {
-                            const addons = item.addons?.length
-                                ? `（${item.addons.join("、")}）`
-                                : "";
-                            return `<li>${item.name}${addons} x${item.qty}</li>`;
+                            let addonText = "";
+                            if (item.addons && item.addons.length) {
+                                addonText = item.addons
+                                    .map((a) => {
+                                        if (typeof a === "object") {
+                                            return `${a.label}（+$${a.price}）`;
+                                        }
+                                        return a; // 如果是舊格式字串
+                                    })
+                                    .join("、");
+                            }
+                            return `<li>${item.name}${
+                                addonText ? `（${addonText}）` : ""
+                            } x${item.qty}</li>`;
                         })
                         .join("");
 
                     card.innerHTML = `
-        <div class="flex justify-between items-center mb-2">
+          <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-gray-500">🕒 ${time}</span>
             <span class="text-sm text-gray-700 font-medium">桌號：${
                 order.table_no || "-"
@@ -113,13 +122,12 @@
                 });
                 const result = await res.json();
                 if (res.ok) {
-                    fetchOrders(); // 重新載入訂單
+                    fetchOrders();
                 } else {
                     alert(result.error || "操作失敗");
                 }
             }
 
-            // 初次載入 + 每 5 秒刷新
             fetchOrders();
             setInterval(fetchOrders, 5000);
         </script>

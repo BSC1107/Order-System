@@ -34,7 +34,7 @@ db.serialize(() => {
     note TEXT,
     table_no TEXT,
     status TEXT DEFAULT 'pending'
-  )`);
+)`);
 });
 
 module.exports = db;

@@ -1,20 +1,58 @@
-### 查詢訂單
-GET http://localhost:3000/api/order
+### ✅ 取得今日所有尚未完成的訂單
+GET http://localhost:3000/api/order/today
+Accept: application/json
 
-### 送出訂單
+###
+# 說明：
+# - 回傳今天所有 status = 'pending' 的訂單
+# - 用於 kitchen.html 顯示用
+# - created_at 須為 UTC 格式的當日日期
+
+###
+
+### ✅ 建立一筆新訂單（含加料）
 POST http://localhost:3000/api/order
 Content-Type: application/json
 
 {
+  "table_no": "A1",
+  "note": "請幫我切對半",
   "items": [
     {
-      "id": "chicken_bento",
-      "name": "雞腿便當",
-      "price": 120,
+      "id": "ham_pork",
+      "name": "豬肉堡",
+      "price": 30,
       "qty": 2,
-      "addons": ["加飯", "加蛋"]
+      "addons": [
+        { "label": "加蛋", "price": 10 },
+        { "label": "加起司", "price": 10 }
+      ],
+      "note": "蛋全熟"
+    },
+    {
+      "id": "toast_ham",
+      "name": "火腿吐司",
+      "price": 25,
+      "qty": 1,
+      "addons": []
     }
-  ],
-  "note": "多一點飯、不要辣",
-  "table_no": "A1"
+  ]
 }
+
+###
+# 說明：
+# - `items` 為一個訂單商品陣列，每個商品含基本資訊與選擇的加料
+# - `addons` 為陣列，可為空；每項包含 label + price
+# - 系統會自動計算所有商品小計與加料總價，並回傳 `total` 與 `id`
+
+###
+
+### ✅ 將指定訂單標記為完成（由廚房端觸發）
+POST http://localhost:3000/api/order/be179de6-72ef-4b1c-847e-78173414f04a/complete
+Content-Type: application/json
+
+###
+# 說明：
+# - URL 中 `:id` 替換成實際訂單 ID
+# - 呼叫後該訂單 `status` 將更新為 `'done'`
+# - 已完成的訂單不會再出現在 `/api/order/today` 中

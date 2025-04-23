@@ -6,35 +6,80 @@
                 "id": "ham_pork",
                 "name": "豬肉堡",
                 "price": 30,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://tse1.mm.bing.net/th/iAd/OIP.63Ho7kE0OEKsEm8D40NhTQHaE6"
             },
             {
                 "id": "ham_chicken",
                 "name": "雞香堡",
                 "price": 30,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=雞香堡"
             },
             {
                 "id": "ham_porkchop",
                 "name": "豬排堡",
                 "price": 35,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=豬排堡"
             },
             {
                 "id": "ham_spicy",
                 "name": "勁辣雞腿堡",
                 "price": 60,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=勁辣雞腿堡"
             },
             {
                 "id": "ham_cheese",
                 "name": "香脆雞腿堡",
                 "price": 60,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=香脆雞腿堡"
             }
         ]
@@ -46,63 +91,144 @@
                 "id": "toast_ham",
                 "name": "火腿吐司",
                 "price": 25,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=火腿吐司"
             },
             {
                 "id": "toast_bacon",
                 "name": "培根吐司",
                 "price": 25,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=培根吐司"
             },
             {
                 "id": "toast_egg",
                 "name": "夾蛋吐司",
                 "price": 25,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=夾蛋吐司"
             },
             {
                 "id": "toast_meatfloss",
                 "name": "肉鬆吐司",
                 "price": 25,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://tse1.mm.bing.net/th?id=OIP.J8_koAYU9mdujMov8NRD_QHaFj"
             },
             {
                 "id": "toast_crispy",
                 "name": "夾肉吐司",
                 "price": 30,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=夾肉吐司"
             },
             {
                 "id": "toast_chicken",
                 "name": "雞香吐司",
                 "price": 30,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=雞香吐司"
             },
             {
                 "id": "toast_porkchop",
                 "name": "豬排吐司",
-                "price": 30,
-                "addons": ["加蛋", "加起司"],
+                "price": 35,
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=豬排吐司"
             },
             {
                 "id": "toast_french",
                 "name": "法國吐司",
                 "price": 35,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=法國吐司"
             },
             {
                 "id": "toast_total",
                 "name": "總匯吐司",
                 "price": 50,
-                "addons": ["加蛋", "加起司"],
+                "addons": [
+                    {
+                        "name": "加蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "加起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://tse2.mm.bing.net/th/id/OIP.kndVx-XW5vZWZIONUpid6gHaIw"
             }
         ]
@@ -155,42 +281,96 @@
                 "id": "egg_plain",
                 "name": "原味蛋餅",
                 "price": 25,
-                "addons": ["+蛋", "+起司"],
+                "addons": [
+                    {
+                        "name": "+蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "+起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=原味蛋餅"
             },
             {
                 "id": "egg_bacon",
                 "name": "培根蛋餅",
                 "price": 35,
-                "addons": ["+蛋", "+起司"],
+                "addons": [
+                    {
+                        "name": "+蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "+起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=培根蛋餅"
             },
             {
                 "id": "egg_ham",
                 "name": "火腿蛋餅",
                 "price": 35,
-                "addons": ["+蛋", "+起司"],
+                "addons": [
+                    {
+                        "name": "+蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "+起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=火腿蛋餅"
             },
             {
                 "id": "egg_corn",
                 "name": "玉米蛋餅",
-                "price": 30,
-                "addons": ["+蛋", "+起司"],
+                "price": 35,
+                "addons": [
+                    {
+                        "name": "+蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "+起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=玉米蛋餅"
             },
             {
                 "id": "egg_meat",
                 "name": "夾肉蛋餅",
-                "price": 35,
-                "addons": ["+蛋", "+起司"],
+                "price": 40,
+                "addons": [
+                    {
+                        "name": "+蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "+起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=夾肉蛋餅"
             },
             {
                 "id": "egg_porkchop",
                 "name": "豬排蛋餅",
                 "price": 45,
-                "addons": ["+蛋", "+起司"],
+                "addons": [
+                    {
+                        "name": "+蛋",
+                        "price": 10
+                    },
+                    {
+                        "name": "+起司",
+                        "price": 10
+                    }
+                ],
                 "image": "https://via.placeholder.com/100x100?text=豬排蛋餅"
             }
         ]
@@ -300,9 +480,9 @@
             },
             {
                 "id": "luosong",
-                "name": "羅宋糕",
+                "name": "蘿蔔糕",
                 "price": 25,
-                "image": "https://via.placeholder.com/100x100?text=羅宋糕"
+                "image": "https://via.placeholder.com/100x100?text=蘿蔔糕"
             }
         ]
     },
