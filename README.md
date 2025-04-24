@@ -17,6 +17,7 @@
 
 🔗 前台網址：  
 👉 https://order-system-zy3x.onrender.com/
+<img src="public/image/index.png" alt="前台 QR Code">
 
 ---
 
@@ -29,6 +30,7 @@
 
 🔗 廚房後台：  
 👉 https://order-system-zy3x.onrender.com/kitchen.html
+<img src="public/image/kitchen.png" alt="後台 QR Code">
 
 ---
 
