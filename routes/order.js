@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require("uuid");
 // ✅ 取得今日未完成訂單（廚房用）
 router.get("/today", (req, res) => {
     const sql = `
-        SELECT id, order_no, items, total, table_no, note, created_at 
+        SELECT id, order_no, items, total, table_no, created_at 
         FROM orders 
         WHERE DATE(created_at, 'localtime') = DATE('now', 'localtime') AND status = 'pending'
         ORDER BY created_at DESC`;
@@ -29,7 +29,7 @@ router.get("/today", (req, res) => {
 // ✅ 取得所有已完成訂單（不指定日期，歷史查詢用）
 router.get("/history", (req, res) => {
     const sql = `
-        SELECT id, order_no, items, total, table_no, note, created_at 
+        SELECT id, order_no, items, total, table_no, created_at 
         FROM orders 
         WHERE status = 'done'
         ORDER BY created_at DESC`;
@@ -53,7 +53,7 @@ router.get("/history", (req, res) => {
 router.get("/history/:date", (req, res) => {
     const date = req.params.date;
     const sql = `
-        SELECT id, order_no, items, total, table_no, note, created_at
+        SELECT id, order_no, items, total, table_no, created_at
         FROM orders
         WHERE DATE(created_at, 'localtime') = ? AND status = 'done'
         ORDER BY created_at DESC`;
@@ -75,7 +75,7 @@ router.get("/history/:date", (req, res) => {
 
 // ✅ 建立新訂單（含加料計算與訂單編號）
 router.post("/", (req, res) => {
-    const { items, table_no, note } = req.body;
+    const { items, table_no } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: "沒有商品資料" });
@@ -111,13 +111,12 @@ router.post("/", (req, res) => {
             total,
             created_at: new Date().toISOString(),
             table_no,
-            note,
             status: "pending",
         };
 
         const insertSql = `
-            INSERT INTO orders (id, order_no, items, total, created_at, note, table_no, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            INSERT INTO orders (id, order_no, items, total, created_at, table_no, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
         db.run(
             insertSql,
@@ -127,7 +126,6 @@ router.post("/", (req, res) => {
                 order.items,
                 order.total,
                 order.created_at,
-                order.note,
                 order.table_no,
                 order.status,
             ],

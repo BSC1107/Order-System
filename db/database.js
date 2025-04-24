@@ -34,7 +34,6 @@ db.serialize(() => {
         items TEXT,
         total INTEGER,
         created_at TEXT,
-        note TEXT,
         table_no TEXT,
         status TEXT DEFAULT 'pending'
     )`);

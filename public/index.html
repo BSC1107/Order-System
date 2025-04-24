@@ -1,10 +1,9 @@
-<!-- 請將原本 index.html 替換成這個版本，RWD 已加強 -->
 <!DOCTYPE html>
 <html lang="zh-TW">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>山葉早餐點餐系統</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script src="https://cdn.tailwindcss.com"></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
@@ -14,29 +13,35 @@
             body {
                 font-family: "Noto Sans TC", sans-serif;
             }
+
             .scrolling-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                padding: 0 1rem;
             }
+
             .scrolling-wrapper::-webkit-scrollbar {
                 display: none;
             }
         </style>
     </head>
+
     <body class="bg-[#fdfaf6] text-[#3f3f3f] min-h-screen pb-28">
         <!-- 購物車浮動按鈕 -->
         <a
             href="/cart.html"
-            class="fixed bottom-24 right-4 bg-orange-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-50 text-xl"
+            class="fixed bottom-20 right-4 bg-orange-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg z-50"
         >
             🛒
         </a>
 
         <div class="max-w-5xl mx-auto px-4">
-            <h1 class="text-2xl font-bold text-center py-4">
+            <h1 class="text-2xl font-bold text-center pt-6">
                 🍳 山葉早餐點餐系統
             </h1>
+            <p
+                id="tableDisplay"
+                class="text-center text-sm text-gray-600 mb-4"
+            ></p>
 
             <!-- 分類 Tabs -->
             <div
@@ -47,31 +52,47 @@
             <!-- 商品區塊 -->
             <div
                 id="menu"
-                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 px-2"
+                class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
             ></div>
         </div>
 
         <!-- 底部固定訂單欄 -->
         <div
-            class="fixed bottom-0 left-0 right-0 bg-white border-t shadow p-4 flex justify-between items-center z-40 h-20"
+            class="fixed bottom-0 left-0 right-0 bg-white border-t shadow p-4 flex justify-between items-center z-40"
         >
-            <span class="text-lg text-gray-700 font-bold"
+            <span class="text-gray-700 font-semibold"
                 >訂單小計 $<span id="total">0</span></span
             >
             <a
+                id="cartLink"
                 href="/cart.html"
-                class="bg-orange-500 text-white px-6 py-3 rounded-lg text-lg font-bold shadow-md hover:bg-orange-600"
+                class="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold"
+                >確認訂單</a
             >
-                確認訂單
-            </a>
         </div>
 
         <script>
             let allMenuData = [];
+            const urlParams = new URLSearchParams(location.search);
+            const tableNo = urlParams.get("table");
+
+            if (tableNo) {
+                localStorage.setItem("autoTableNo", tableNo);
+                document.getElementById(
+                    "tableDisplay"
+                ).textContent = `桌號：${tableNo}`;
+                document
+                    .getElementById("cartLink")
+                    .setAttribute(
+                        "href",
+                        `/cart.html?table=${encodeURIComponent(tableNo)}`
+                    );
+            }
 
             async function loadMenu() {
                 const res = await fetch("/data/menu.json");
                 allMenuData = await res.json();
+
                 renderCategoryTabs();
                 renderMenuItems("全部");
                 updateIndexSubtotal();
@@ -125,23 +146,18 @@
                     group.items.forEach((item) => {
                         const card = document.createElement("div");
                         card.className =
-                            "bg-white rounded-xl shadow p-3 flex flex-col items-center text-center cursor-pointer hover:shadow-md transition";
+                            "bg-white rounded-xl shadow p-2 flex flex-col items-center text-center cursor-pointer hover:shadow-md transition";
                         card.onclick = () =>
                             (location.href = `/detail.html?id=${item.id}`);
 
                         card.innerHTML = `
-                        <div class='w-24 h-24 rounded-full overflow-hidden bg-gray-100 mb-2'>
-                            <img src='${
-                                item.image || "https://via.placeholder.com/100"
-                            }' alt='${
-                            item.name
-                        }' class='w-full h-full object-cover'>
-                        </div>
-                        <div class='text-base font-bold'>${item.name}</div>
-                        <div class='text-orange-500 font-bold'>$${
-                            item.price
-                        }</div>
-                    `;
+              <div class='w-24 h-24 rounded-full overflow-hidden bg-gray-100 mb-2'>
+                <img src='${
+                    item.image || "https://via.placeholder.com/100"
+                }' alt='${item.name}' class='w-full h-full object-cover'>
+              </div>
+              <div class='text-sm font-semibold'>${item.name}</div>
+              <div class='text-orange-500 font-bold'>$${item.price}</div>`;
 
                         menu.appendChild(card);
                     });

@@ -30,18 +30,23 @@
 
             <!-- 訂單資訊 -->
             <div class="mt-8 bg-white rounded-xl p-4 shadow space-y-4">
-                <div class="text-right text-lg font-semibold">
-                    訂單小計：$<span id="subtotal">0</span>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">桌號：</label>
-                    <input
-                        id="tableNo"
-                        type="text"
-                        class="w-full p-3 border rounded text-base"
-                        placeholder="請輸入桌號"
-                    />
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                >
+                    <div
+                        class="text-lg font-semibold flex-1 text-right sm:text-left"
+                    >
+                        訂單小計：$<span id="subtotal">0</span>
+                    </div>
+                    <div class="w-full sm:w-2/5">
+                        <label class="block font-semibold mb-1">桌號：</label>
+                        <input
+                            id="tableNo"
+                            type="text"
+                            class="w-full p-3 border rounded text-base bg-gray-100"
+                            readonly
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -88,32 +93,31 @@
                     li.className = "bg-white p-4 rounded-lg shadow space-y-2";
 
                     li.innerHTML = `
-          <div class="font-bold text-base">${item.name} ${
+                    <div class="font-bold text-base">${item.name} ${
                         addonText ? `（${addonText}）` : ""
                     }</div>
-          <div class="text-sm text-gray-600">單價：$${item.price}${
+                    <div class="text-sm text-gray-600">單價：$${item.price}${
                         addonText ? ` + 加料 $${addonPrice}` : ""
                     }</div>
-          <div class="flex items-center gap-2">
-            <label class="text-sm">數量：</label>
-            <div class="flex items-center gap-1">
-              <button onclick="changeQty(${index}, -1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
-              <span id="qty-${index}" class="min-w-[2rem] text-center">${
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm">數量：</label>
+                        <div class="flex items-center gap-1">
+                            <button onclick="changeQty(${index}, -1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
+                            <span id="qty-${index}" class="min-w-[2rem] text-center">${
                         item.qty
                     }</span>
-              <button onclick="changeQty(${index}, 1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <label class="text-sm">備註：</label>
-            <input type="text" value="${
-                item.note || ""
-            }" onchange="updateNote(${index}, this.value)" class="w-1/2 p-2 border rounded text-sm" />
-          </div>
-          <div class="text-sm text-gray-500">小計：$${itemTotal}</div>
-          <button onclick="removeItem(${index})" class="text-red-500 hover:underline text-sm">🗑 刪除</button>
-        `;
-
+                            <button onclick="changeQty(${index}, 1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm">備註：</label>
+                        <input type="text" value="${
+                            item.note || ""
+                        }" onchange="updateNote(${index}, this.value)" class="w-1/2 p-2 border rounded text-sm" />
+                    </div>
+                    <div class="text-sm text-gray-500">小計：$${itemTotal}</div>
+                    <button onclick="removeItem(${index})" class="text-red-500 hover:underline text-sm">🗑 刪除</button>
+                `;
                     list.appendChild(li);
                 });
 
@@ -160,6 +164,20 @@
                     alert(`❌ 發生錯誤：${result.error}`);
                 }
             }
+
+            // ✅ 自動填入桌號（來自網址參數或 localStorage）
+            window.addEventListener("DOMContentLoaded", () => {
+                const param = new URLSearchParams(location.search).get("table");
+                const savedTable = param || localStorage.getItem("autoTableNo");
+
+                if (savedTable) {
+                    localStorage.setItem("autoTableNo", savedTable);
+                    const input = document.getElementById("tableNo");
+                    input.value = savedTable;
+                    input.setAttribute("readonly", "true");
+                    input.classList.add("bg-gray-100");
+                }
+            });
 
             renderCart();
         </script>
