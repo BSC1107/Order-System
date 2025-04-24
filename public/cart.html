@@ -43,15 +43,6 @@
                         placeholder="請輸入桌號"
                     />
                 </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">備註：</label>
-                    <textarea
-                        id="note"
-                        class="w-full p-3 border rounded text-base"
-                        placeholder="例如：先上飲料..."
-                    ></textarea>
-                </div>
             </div>
         </div>
 
@@ -148,7 +139,6 @@
 
             async function submitOrder() {
                 const table_no = document.getElementById("tableNo").value;
-                const note = document.getElementById("note").value;
 
                 if (!cart.length) {
                     alert("購物車是空的");
@@ -158,7 +148,7 @@
                 const res = await fetch("/api/order", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ items: cart, table_no, note }),
+                    body: JSON.stringify({ items: cart, table_no }),
                 });
 
                 const result = await res.json();
