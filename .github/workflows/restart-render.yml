@@ -1,0 +1,15 @@
+name: Auto Restart Render
+
+on:
+    schedule:
+        - cron: "0 21 * * *" # 台灣時間早上 5:00（因 GitHub 是 UTC，要 -8 小時）
+    workflow_dispatch: # 可手動觸發（在 GitHub Actions 點一下就能跑）
+
+jobs:
+    restart:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Trigger Render Deploy Hook
+              run: |
+                  curl -X POST "https://api.render.com/deploy/srv-d04ft0i4d50c73a5a3ug?key=Ozc0B7b2pmo"
