@@ -3,17 +3,64 @@ const router = express.Router();
 const { v4: uuidv4 } = require("uuid");
 const db = require("../db/database");
 
-// ✅ 取得今日訂單
+// ✅ 取得今日未完成訂單（廚房用）
 router.get("/today", (req, res) => {
     const sql = `
-    SELECT id, items, total, table_no, note, created_at 
-    FROM orders 
-    WHERE DATE(created_at) = DATE('now') AND status = 'pending'
-    ORDER BY created_at DESC`;
+        SELECT id, items, total, table_no, note, created_at 
+        FROM orders 
+        WHERE DATE(created_at, 'localtime') = DATE('now', 'localtime') AND status = 'pending'
+        ORDER BY created_at DESC`;
 
     db.all(sql, [], (err, rows) => {
         if (err) {
             console.error("查詢失敗:", err);
+            return res.status(500).json({ error: "資料庫錯誤" });
+        }
+
+        const result = rows.map((order) => ({
+            ...order,
+            items: JSON.parse(order.items),
+        }));
+
+        res.json(result);
+    });
+});
+
+// ✅ 取得今日已完成訂單（歷史）
+router.get("/history/today", (req, res) => {
+    const sql = `
+        SELECT id, items, total, table_no, note, created_at 
+        FROM orders 
+        WHERE DATE(created_at, 'localtime') = DATE('now', 'localtime') AND status = 'done'
+        ORDER BY created_at DESC`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error("查詢失敗:", err);
+            return res.status(500).json({ error: "資料庫錯誤" });
+        }
+
+        const result = rows.map((order) => ({
+            ...order,
+            items: JSON.parse(order.items),
+        }));
+
+        res.json(result);
+    });
+});
+
+// ✅ 查詢特定日期的已完成訂單（歷史）
+router.get("/history/:date", (req, res) => {
+    const date = req.params.date; // 格式例如：2025-04-24
+    const sql = `
+        SELECT id, items, total, table_no, note, created_at
+        FROM orders
+        WHERE DATE(created_at, 'localtime') = ? AND status = 'done'
+        ORDER BY created_at DESC`;
+
+    db.all(sql, [date], (err, rows) => {
+        if (err) {
+            console.error("查詢歷史訂單失敗：", err);
             return res.status(500).json({ error: "資料庫錯誤" });
         }
 
@@ -77,7 +124,7 @@ router.post("/", (req, res) => {
     );
 });
 
-// ✅ 標記訂單為完成
+// ✅ 標記訂單為完成（廚房用）
 router.post("/:id/complete", (req, res) => {
     const id = req.params.id;
     const sql = `UPDATE orders SET status = 'done' WHERE id = ?`;

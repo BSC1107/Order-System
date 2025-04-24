@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>歷史訂單紀錄</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Noto Sans TC", sans-serif;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-50 text-gray-800 min-h-screen px-4 pt-6 pb-10">
+        <h1 class="text-2xl font-bold text-center mb-6">📅 歷史訂單查詢</h1>
+
+        <div class="max-w-xl mx-auto">
+            <label for="dateInput" class="block mb-2 font-semibold"
+                >選擇日期：</label
+            >
+            <input
+                type="date"
+                id="dateInput"
+                class="border rounded p-2 mb-4 w-full"
+            />
+            <button
+                onclick="loadHistory(true)"
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mb-6"
+            >
+                🔍 查詢
+            </button>
+        </div>
+
+        <div id="orders" class="space-y-6 max-w-4xl mx-auto"></div>
+
+        <script>
+            async function loadHistory(filterByDate = false) {
+                const date = document.getElementById("dateInput").value;
+                const url =
+                    filterByDate && date
+                        ? `/api/order/history/${date}`
+                        : `/api/order/history`;
+
+                try {
+                    const res = await fetch(url);
+                    const orders = await res.json();
+                    renderOrders(orders);
+                } catch (err) {
+                    console.error("讀取失敗：", err);
+                    alert("載入訂單失敗");
+                }
+            }
+
+            function renderOrders(orders) {
+                const container = document.getElementById("orders");
+                container.innerHTML = "";
+
+                if (!orders.length) {
+                    container.innerHTML =
+                        '<p class="text-center text-gray-500">沒有訂單紀錄</p>';
+                    return;
+                }
+
+                // 依照日期分類
+                const grouped = {};
+                orders.forEach((order) => {
+                    const dateKey = new Date(order.created_at)
+                        .toISOString()
+                        .split("T")[0];
+                    if (!grouped[dateKey]) grouped[dateKey] = [];
+                    grouped[dateKey].push(order);
+                });
+
+                for (const date in grouped) {
+                    const section = document.createElement("div");
+                    section.innerHTML = `<h2 class="text-xl font-bold mb-2 border-b pb-1">📆 ${date}</h2>`;
+                    grouped[date].forEach((order) => {
+                        const time = new Date(
+                            order.created_at
+                        ).toLocaleTimeString("zh-TW", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        });
+
+                        const itemList = order.items
+                            .map((item) => {
+                                let addonText = "";
+                                if (item.addons && item.addons.length) {
+                                    addonText = item.addons
+                                        .map((a) =>
+                                            typeof a === "object"
+                                                ? `${a.label}（+$${a.price}）`
+                                                : a
+                                        )
+                                        .join("、");
+                                }
+                                return `<li>${item.name}${
+                                    addonText ? `（${addonText}）` : ""
+                                } x${item.qty}</li>`;
+                            })
+                            .join("");
+
+                        section.innerHTML += `
+            <div class="bg-white p-4 rounded-xl shadow-md border mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-500">🕒 ${time}</span>
+                <span class="text-sm text-gray-700 font-medium">桌號：${
+                    order.table_no || "-"
+                }</span>
+            </div>
+            <ul class="list-disc list-inside text-sm text-gray-800">${itemList}</ul>
+            ${
+                order.note
+                    ? `<p class="mt-2 text-sm text-gray-600">📝 備註：${order.note}</p>`
+                    : ""
+            }
+            <p class="mt-2 text-right text-base font-semibold">💰 總金額：$${
+                order.total
+            }</p>
+            </div>`;
+                    });
+
+                    container.appendChild(section);
+                }
+            }
+
+            // 預設載入全部
+            window.onload = () => loadHistory(false);
+        </script>
+    </body>
+</html>

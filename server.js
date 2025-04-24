@@ -19,5 +19,9 @@ app.use("/data", express.static("data"));
 app.use("/api/order", orderRoutes);
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`🚀 Server is running`);
+    console.log(`前台網址：👉 https://order-system-zy3x.onrender.com/`);
+    console.log(
+        `廚房後台：👉 https://order-system-zy3x.onrender.com/kitchen.html`
+    );
 });

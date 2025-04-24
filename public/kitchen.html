@@ -17,10 +17,22 @@
     </head>
     <body class="bg-gray-50 text-gray-800 min-h-screen px-4 pt-6 pb-10">
         <h1 class="text-2xl font-bold text-center mb-6">👨‍🍳 廚房訂單管理</h1>
+
+        <!-- 歷史訂單按鈕 -->
+        <div class="text-right max-w-4xl mx-auto mb-4">
+            <a
+                href="/history.html"
+                class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow"
+            >
+                📜 歷史訂單
+            </a>
+        </div>
+
+        <!-- 訂單列表 -->
         <div id="orders" class="space-y-4 max-w-4xl mx-auto"></div>
 
         <!-- 聲音提示 -->
-        <audio id="ding" src="audio/ding.mp3" preload="auto"></audio>
+        <audio id="ding" src="/audio/ding.mp3" preload="auto"></audio>
 
         <script>
             let currentOrderIds = [];
@@ -72,12 +84,11 @@
                             let addonText = "";
                             if (item.addons && item.addons.length) {
                                 addonText = item.addons
-                                    .map((a) => {
-                                        if (typeof a === "object") {
-                                            return `${a.label}（+$${a.price}）`;
-                                        }
-                                        return a; // 如果是舊格式字串
-                                    })
+                                    .map((a) =>
+                                        typeof a === "object"
+                                            ? `${a.label}（+$${a.price}）`
+                                            : a
+                                    )
                                     .join("、");
                             }
                             return `<li>${item.name}${
@@ -87,29 +98,26 @@
                         .join("");
 
                     card.innerHTML = `
-          <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-gray-500">🕒 ${time}</span>
             <span class="text-sm text-gray-700 font-medium">桌號：${
                 order.table_no || "-"
             }</span>
-        </div>
-        <ul class="list-disc list-inside text-sm text-gray-800">${itemList}</ul>
-        ${
-            order.note
-                ? `<p class="mt-2 text-sm text-gray-600">📝 備註：${order.note}</p>`
-                : ""
-        }
-        <div class="flex justify-between items-center mt-4">
-            <p class="text-base font-semibold text-right">💰 總金額：$${
-                order.total
-            }</p>
+            </div>
+            <ul class="list-disc list-inside text-sm text-gray-800">${itemList}</ul>
+            ${
+                order.note
+                    ? `<p class="mt-2 text-sm text-gray-600">📝 備註：${order.note}</p>`
+                    : ""
+            }
+            <div class="flex justify-between items-center mt-4">
+            <p class="text-base font-semibold">💰 總金額：$${order.total}</p>
             <button onclick="completeOrder('${
                 order.id
             }')" class="ml-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-            ✅ 完成
+                ✅ 完成
             </button>
-        </div>
-        `;
+            </div>`;
 
                     container.appendChild(card);
                 });
