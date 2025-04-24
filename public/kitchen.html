@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>廚房訂單管理</title>
+        <title>歷史訂單紀錄</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
@@ -15,45 +15,44 @@
             }
         </style>
     </head>
-    <body class="bg-gray-50 text-gray-800 min-h-screen px-4 pt-6 pb-10">
-        <h1 class="text-2xl font-bold text-center mb-6">👨‍🍳 廚房訂單管理</h1>
+    <body class="bg-gray-50 text-gray-800 min-h-screen px-4 pt-6 pb-10 text-lg">
+        <h1 class="text-3xl font-bold text-center mb-6">📅 歷史訂單查詢</h1>
 
-        <!-- 歷史訂單按鈕 -->
-        <div class="text-right max-w-4xl mx-auto mb-4">
-            <a
-                href="/history.html"
-                class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-full text-sm font-medium shadow"
+        <div class="max-w-2xl mx-auto mb-6">
+            <label for="dateInput" class="block mb-2 font-semibold text-lg"
+                >選擇日期：</label
             >
-                📜 歷史訂單
-            </a>
+            <input
+                type="date"
+                id="dateInput"
+                class="border rounded p-2 mb-4 w-full text-lg"
+                value="${new Date().toISOString().split('T')[0]}"
+            />
+            <button
+                onclick="loadHistory()"
+                class="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 w-full text-lg"
+            >
+                🔍 查詢
+            </button>
         </div>
 
-        <!-- 訂單列表 -->
-        <div id="orders" class="space-y-4 max-w-4xl mx-auto"></div>
-
-        <!-- 聲音提示 -->
-        <audio id="ding" src="/audio/ding.mp3" preload="auto"></audio>
+        <div id="orders" class="space-y-6 max-w-5xl mx-auto"></div>
 
         <script>
-            let currentOrderIds = [];
+            async function loadHistory() {
+                const date = document.getElementById("dateInput").value;
+                if (!date) {
+                    alert("請選擇日期");
+                    return;
+                }
 
-            async function fetchOrders() {
                 try {
-                    const res = await fetch("/api/order/today");
+                    const res = await fetch(`/api/order/history/${date}`);
                     const orders = await res.json();
-
-                    const newIds = orders.map((o) => o.id);
-                    const hasNew = newIds.some(
-                        (id) => !currentOrderIds.includes(id)
-                    );
-                    if (hasNew && currentOrderIds.length) {
-                        document.getElementById("ding").play();
-                    }
-                    currentOrderIds = newIds;
-
                     renderOrders(orders);
                 } catch (err) {
-                    console.error("取得訂單失敗：", err);
+                    console.error("讀取失敗：", err);
+                    alert("載入訂單失敗");
                 }
             }
 
@@ -63,13 +62,13 @@
 
                 if (!orders.length) {
                     container.innerHTML =
-                        '<p class="text-center text-gray-500">目前沒有訂單。</p>';
+                        '<p class="text-center text-gray-500 text-xl">沒有訂單紀錄</p>';
                     return;
                 }
 
                 orders.forEach((order) => {
                     const card = document.createElement("div");
-                    card.className = "bg-white p-4 rounded-xl shadow-md border";
+                    card.className = "bg-white p-6 rounded-xl shadow-md border";
 
                     const time = new Date(order.created_at).toLocaleTimeString(
                         "zh-TW",
@@ -98,46 +97,28 @@
                         .join("");
 
                     card.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-            <span class="text-sm text-gray-500">🕒 ${time}</span>
-            <span class="text-sm text-gray-700 font-medium">桌號：${
-                order.table_no || "-"
-            }</span>
-            </div>
-            <ul class="list-disc list-inside text-sm text-gray-800">${itemList}</ul>
-            ${
-                order.note
-                    ? `<p class="mt-2 text-sm text-gray-600">📝 備註：${order.note}</p>`
-                    : ""
-            }
-            <div class="flex justify-between items-center mt-4">
-            <p class="text-base font-semibold">💰 總金額：$${order.total}</p>
-            <button onclick="completeOrder('${
-                order.id
-            }')" class="ml-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-                ✅ 完成
-            </button>
-            </div>`;
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-base text-gray-500">🕒 ${time}</span>
+                    <span class="text-base font-medium text-gray-700">桌號：${
+                        order.table_no || "-"
+                    }</span>
+                </div>
+                <ul class="list-disc list-inside text-gray-800 mb-2 leading-relaxed">${itemList}</ul>
+                ${
+                    order.note
+                        ? `<p class="text-base text-gray-600 mb-2">📝 備註：${order.note}</p>`
+                        : ""
+                }
+                <p class="text-right text-xl font-bold text-orange-600">💰 總金額：$${
+                    order.total
+                }</p>
+                `;
 
                     container.appendChild(card);
                 });
             }
 
-            async function completeOrder(id) {
-                if (!confirm("確定要標記為已完成嗎？")) return;
-                const res = await fetch(`/api/order/${id}/complete`, {
-                    method: "POST",
-                });
-                const result = await res.json();
-                if (res.ok) {
-                    fetchOrders();
-                } else {
-                    alert(result.error || "操作失敗");
-                }
-            }
-
-            fetchOrders();
-            setInterval(fetchOrders, 5000);
+            window.onload = loadHistory;
         </script>
     </body>
 </html>

@@ -28,34 +28,33 @@
                 class="border rounded p-2 mb-4 w-full"
             />
             <button
-                onclick="loadHistory(true)"
+                onclick="loadHistory()"
                 class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full mb-6"
             >
                 🔍 查詢
             </button>
         </div>
 
-        <div id="orders" class="space-y-6 max-w-4xl mx-auto"></div>
+        <div id="orders" class="space-y-4 max-w-4xl mx-auto"></div>
 
         <script>
-            async function loadHistory(filterByDate = false) {
+            async function loadHistory() {
                 const date = document.getElementById("dateInput").value;
-                const url =
-                    filterByDate && date
-                        ? `/api/order/history/${date}`
-                        : `/api/order/history`;
+                let url = date
+                    ? `/api/order/history/${date}`
+                    : `/api/order/history/today`;
 
                 try {
                     const res = await fetch(url);
                     const orders = await res.json();
-                    renderOrders(orders);
+                    renderOrdersGrouped(orders, !date);
                 } catch (err) {
                     console.error("讀取失敗：", err);
-                    alert("載入訂單失敗");
+                    alert("載入訂單失敗：" + err.message);
                 }
             }
 
-            function renderOrders(orders) {
+            function renderOrdersGrouped(orders, groupByDate = false) {
                 const container = document.getElementById("orders");
                 container.innerHTML = "";
 
@@ -65,52 +64,65 @@
                     return;
                 }
 
-                // 依照日期分類
-                const grouped = {};
-                orders.forEach((order) => {
-                    const dateKey = new Date(order.created_at)
-                        .toISOString()
-                        .split("T")[0];
-                    if (!grouped[dateKey]) grouped[dateKey] = [];
-                    grouped[dateKey].push(order);
-                });
+                if (groupByDate) {
+                    const grouped = {};
+                    orders.forEach((o) => {
+                        const d = o.created_at.split("T")[0];
+                        if (!grouped[d]) grouped[d] = [];
+                        grouped[d].push(o);
+                    });
 
-                for (const date in grouped) {
-                    const section = document.createElement("div");
-                    section.innerHTML = `<h2 class="text-xl font-bold mb-2 border-b pb-1">📆 ${date}</h2>`;
-                    grouped[date].forEach((order) => {
-                        const time = new Date(
-                            order.created_at
-                        ).toLocaleTimeString("zh-TW", {
-                            hour: "2-digit",
-                            minute: "2-digit",
+                    Object.keys(grouped)
+                        .sort((a, b) => b.localeCompare(a))
+                        .forEach((date) => {
+                            const section = document.createElement("div");
+                            section.innerHTML = `<h2 class="text-lg font-bold my-4">${date}</h2>`;
+                            grouped[date].forEach((order) => {
+                                section.innerHTML += renderOrderCard(order);
+                            });
+                            container.appendChild(section);
                         });
+                } else {
+                    orders.forEach((order) => {
+                        container.innerHTML += renderOrderCard(order);
+                    });
+                }
+            }
 
-                        const itemList = order.items
-                            .map((item) => {
-                                let addonText = "";
-                                if (item.addons && item.addons.length) {
-                                    addonText = item.addons
-                                        .map((a) =>
-                                            typeof a === "object"
-                                                ? `${a.label}（+$${a.price}）`
-                                                : a
-                                        )
-                                        .join("、");
-                                }
-                                return `<li>${item.name}${
-                                    addonText ? `（${addonText}）` : ""
-                                } x${item.qty}</li>`;
-                            })
-                            .join("");
+            function renderOrderCard(order) {
+                const time = new Date(order.created_at).toLocaleTimeString(
+                    "zh-TW",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    }
+                );
 
-                        section.innerHTML += `
-            <div class="bg-white p-4 rounded-xl shadow-md border mb-4">
+                const itemList = order.items
+                    .map((item) => {
+                        let addonText = "";
+                        if (item.addons && item.addons.length) {
+                            addonText = item.addons
+                                .map((a) =>
+                                    typeof a === "object"
+                                        ? `${a.label}（+$${a.price}）`
+                                        : a
+                                )
+                                .join("、");
+                        }
+                        return `<li>${item.name}${
+                            addonText ? `（${addonText}）` : ""
+                        } x${item.qty}</li>`;
+                    })
+                    .join("");
+
+                return `
+        <div class="bg-white p-4 rounded-xl shadow-md border mb-4">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-gray-500">🕒 ${time}</span>
-                <span class="text-sm text-gray-700 font-medium">桌號：${
-                    order.table_no || "-"
-                }</span>
+            <span class="text-sm text-gray-500">🕒 ${time}</span>
+            <span class="text-sm text-gray-700 font-medium">桌號：${
+                order.table_no || "-"
+            }</span>
             </div>
             <ul class="list-disc list-inside text-sm text-gray-800">${itemList}</ul>
             ${
@@ -121,15 +133,10 @@
             <p class="mt-2 text-right text-base font-semibold">💰 總金額：$${
                 order.total
             }</p>
-            </div>`;
-                    });
-
-                    container.appendChild(section);
-                }
+        </div>`;
             }
 
-            // 預設載入全部
-            window.onload = () => loadHistory(false);
+            window.onload = loadHistory;
         </script>
     </body>
 </html>
