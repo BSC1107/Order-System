@@ -2,13 +2,13 @@
 <html lang="zh-TW">
     <head>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>商品詳情</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
             rel="stylesheet"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
             body {
                 font-family: "Noto Sans TC", sans-serif;
@@ -16,6 +16,7 @@
         </style>
     </head>
     <body class="bg-[#fdfaf6] text-[#3f3f3f] min-h-screen pb-24">
+        <!-- 返回按鈕 -->
         <a
             onclick="history.back()"
             class="fixed top-4 left-4 bg-white text-gray-700 px-3 py-2 rounded-full shadow hover:bg-gray-200 flex items-center space-x-1 z-50"
@@ -25,9 +26,10 @@
 
         <div class="max-w-md mx-auto px-4 pt-16">
             <div class="bg-white rounded-xl shadow p-6">
+                <!-- 商品圖與資訊 -->
                 <div class="flex flex-col items-center mb-4">
                     <div
-                        class="w-28 h-28 rounded-full overflow-hidden bg-gray-100 mb-3"
+                        class="w-32 h-32 rounded-full overflow-hidden bg-gray-100 mb-3"
                     >
                         <img
                             id="itemImage"
@@ -36,45 +38,51 @@
                             class="w-full h-full object-cover"
                         />
                     </div>
-                    <h1 id="itemName" class="text-xl font-bold">商品名稱</h1>
+                    <h1 id="itemName" class="text-xl font-bold text-center">
+                        商品名稱
+                    </h1>
                     <p id="itemPrice" class="text-orange-500 text-lg font-bold">
                         價格
                     </p>
                 </div>
 
+                <!-- 加料選項 -->
                 <div id="addonsContainer" class="mb-4"></div>
 
+                <!-- 數量調整 -->
                 <label class="block font-semibold mb-1">數量：</label>
-                <div class="flex items-center space-x-2 mb-4">
+                <div class="flex items-center justify-center gap-4 mb-4">
                     <button
                         onclick="changeQty(-1)"
-                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                        class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 text-xl"
                     >
                         -
                     </button>
                     <span
                         id="qtyDisplay"
-                        class="text-lg font-bold w-8 text-center"
+                        class="text-xl font-bold w-10 text-center"
                         >1</span
                     >
                     <button
                         onclick="changeQty(1)"
-                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                        class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 text-xl"
                     >
                         +
                     </button>
                 </div>
 
+                <!-- 備註 -->
                 <label class="block font-semibold mb-1">備註：</label>
                 <textarea
                     id="note"
-                    class="w-full p-2 border rounded mb-4 text-sm"
+                    class="w-full p-3 border rounded mb-4 text-base"
                     placeholder="例如：不要菜 美乃滋..."
                 ></textarea>
 
+                <!-- 加入購物車 -->
                 <button
                     onclick="addToCart()"
-                    class="w-full bg-orange-500 text-white p-3 rounded-lg font-bold hover:bg-orange-600"
+                    class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold hover:bg-orange-600 text-lg"
                 >
                     加入購物車
                 </button>
@@ -109,8 +117,9 @@
                 document.getElementById(
                     "itemPrice"
                 ).textContent = `$${item.price}`;
-                if (item.image)
+                if (item.image) {
                     document.getElementById("itemImage").src = item.image;
+                }
 
                 const addonContainer =
                     document.getElementById("addonsContainer");
@@ -120,9 +129,9 @@
                     item.addons.forEach((addon, index) => {
                         const id = `addon-${index}`;
                         addonContainer.innerHTML += `
-            <label class="block mb-1">
-            <input type="checkbox" id="${id}" data-price="${addon.price}" value="${addon.name}" class="mr-2">
-            ${addon.name}（+$${addon.price}）
+            <label class="block mb-2 text-base">
+              <input type="checkbox" id="${id}" data-price="${addon.price}" value="${addon.name}" class="mr-2">
+              ${addon.name}（+$${addon.price}）
             </label>`;
                     });
                 }
@@ -136,6 +145,7 @@
             function addToCart() {
                 const note = document.getElementById("note").value;
                 const addons = [];
+
                 if (item.addons && item.addons.length) {
                     item.addons.forEach((addon, index) => {
                         const checkbox = document.getElementById(

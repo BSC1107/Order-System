@@ -483,6 +483,12 @@
                 "name": "蘿蔔糕",
                 "price": 25,
                 "image": "https://via.placeholder.com/100x100?text=蘿蔔糕"
+            },
+            {
+                "id": "nugget",
+                "name": "雞塊(5塊)",
+                "price": 35,
+                "image": "https://via.placeholder.com/100x100?text=雞塊"
             }
         ]
     },
@@ -514,7 +520,7 @@
         "items": [
             {
                 "id": "luosong_discount",
-                "name": "羅宋糕",
+                "name": "蘿蔔糕",
                 "price": 20,
                 "image": "https://via.placeholder.com/100x100?text=羅宋糕"
             },

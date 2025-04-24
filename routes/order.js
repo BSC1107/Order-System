@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { v4: uuidv4 } = require("uuid");
 const db = require("../db/database");
+const { v4: uuidv4 } = require("uuid");
 
 // ✅ 取得今日未完成訂單（廚房用）
 router.get("/today", (req, res) => {
     const sql = `
-        SELECT id, items, total, table_no, note, created_at 
+        SELECT id, order_no, items, total, table_no, note, created_at 
         FROM orders 
         WHERE DATE(created_at, 'localtime') = DATE('now', 'localtime') AND status = 'pending'
         ORDER BY created_at DESC`;
@@ -26,17 +26,17 @@ router.get("/today", (req, res) => {
     });
 });
 
-// ✅ 取得今日已完成訂單（歷史）
-router.get("/history/today", (req, res) => {
+// ✅ 取得所有已完成訂單（不指定日期，歷史查詢用）
+router.get("/history", (req, res) => {
     const sql = `
-        SELECT id, items, total, table_no, note, created_at 
+        SELECT id, order_no, items, total, table_no, note, created_at 
         FROM orders 
-        WHERE DATE(created_at, 'localtime') = DATE('now', 'localtime') AND status = 'done'
+        WHERE status = 'done'
         ORDER BY created_at DESC`;
 
     db.all(sql, [], (err, rows) => {
         if (err) {
-            console.error("查詢失敗:", err);
+            console.error("查詢歷史訂單失敗：", err);
             return res.status(500).json({ error: "資料庫錯誤" });
         }
 
@@ -49,11 +49,11 @@ router.get("/history/today", (req, res) => {
     });
 });
 
-// ✅ 查詢特定日期的已完成訂單（歷史）
+// ✅ 查詢特定日期的已完成訂單（歷史查詢）
 router.get("/history/:date", (req, res) => {
-    const date = req.params.date; // 格式例如：2025-04-24
+    const date = req.params.date;
     const sql = `
-        SELECT id, items, total, table_no, note, created_at
+        SELECT id, order_no, items, total, table_no, note, created_at
         FROM orders
         WHERE DATE(created_at, 'localtime') = ? AND status = 'done'
         ORDER BY created_at DESC`;
@@ -73,7 +73,7 @@ router.get("/history/:date", (req, res) => {
     });
 });
 
-// ✅ 建立新訂單（含加料計算）
+// ✅ 建立新訂單（含加料計算與訂單編號）
 router.post("/", (req, res) => {
     const { items, table_no, note } = req.body;
 
@@ -89,42 +89,65 @@ router.post("/", (req, res) => {
         return sum + (item.price + addonTotal) * item.qty;
     }, 0);
 
-    const order = {
-        id: uuidv4(),
-        items: JSON.stringify(items),
-        total,
-        created_at: new Date().toISOString(),
-        table_no,
-        note,
-        status: "pending",
-    };
+    const today = new Date();
+    const dateString = today.toISOString().split("T")[0]; // 2025-04-24
+    const yyyymmdd = dateString.replace(/-/g, ""); // 20250424
 
-    const sql = `
-        INSERT INTO orders (id, items, total, created_at, note, table_no, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const countSql = `SELECT COUNT(*) AS count FROM orders WHERE DATE(created_at, 'localtime') = DATE('now', 'localtime')`;
 
-    db.run(
-        sql,
-        [
-            order.id,
-            order.items,
-            order.total,
-            order.created_at,
-            order.note,
-            order.table_no,
-            order.status,
-        ],
-        (err) => {
-            if (err) {
-                console.error("新增訂單失敗：", err);
-                return res.status(500).json({ error: "資料庫錯誤" });
-            }
-            res.json({ success: true, id: order.id, total: order.total });
+    db.get(countSql, [], (err, row) => {
+        if (err) {
+            console.error("取得當日訂單筆數失敗：", err);
+            return res.status(500).json({ error: "訂單編號產生失敗" });
         }
-    );
+
+        const count = row.count + 1;
+        const order_no = `O-${yyyymmdd}-${String(count).padStart(3, "0")}`;
+
+        const order = {
+            id: uuidv4(),
+            order_no,
+            items: JSON.stringify(items),
+            total,
+            created_at: new Date().toISOString(),
+            table_no,
+            note,
+            status: "pending",
+        };
+
+        const insertSql = `
+            INSERT INTO orders (id, order_no, items, total, created_at, note, table_no, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        db.run(
+            insertSql,
+            [
+                order.id,
+                order.order_no,
+                order.items,
+                order.total,
+                order.created_at,
+                order.note,
+                order.table_no,
+                order.status,
+            ],
+            (err) => {
+                if (err) {
+                    console.error("新增訂單失敗：", err);
+                    return res.status(500).json({ error: "資料庫錯誤" });
+                }
+                res.json({
+                    success: true,
+                    id: order.id,
+                    order_no: order.order_no,
+                    total: order.total,
+                });
+            }
+        );
+    });
 });
 
-// ✅ 標記訂單為完成（廚房用）
+// ✅ 標記訂單為完成
 router.post("/:id/complete", (req, res) => {
     const id = req.params.id;
     const sql = `UPDATE orders SET status = 'done' WHERE id = ?`;

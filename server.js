@@ -20,8 +20,6 @@ app.use("/api/order", orderRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Server is running`);
-    console.log(`前台網址：👉 https://order-system-zy3x.onrender.com/`);
-    console.log(
-        `廚房後台：👉 https://order-system-zy3x.onrender.com/kitchen.html`
-    );
+    console.log(`前台網址：👉 http://localhost:3000/`);
+    console.log(`廚房後台：👉 http://localhost:3000/kitchen.html`);
 });

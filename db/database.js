@@ -4,12 +4,12 @@ const fs = require("fs");
 
 let dbPath = path.resolve(__dirname, "orders.db");
 
-// ✅ 如果是在 Render，優先嘗試使用 /mnt/data
+// ✅ Render 平台專用：使用 /mnt/data 可保資料持久化
 if (process.env.RENDER) {
     const renderPath = "/mnt/data/orders.db";
 
     try {
-        fs.accessSync("/mnt/data", fs.constants.W_OK); // 嘗試檢查寫入權限
+        fs.accessSync("/mnt/data", fs.constants.W_OK);
         dbPath = renderPath;
         console.log("📂 Render 寫入權限確認 ✅ 使用 /mnt/data/orders.db");
     } catch (err) {
@@ -17,6 +17,7 @@ if (process.env.RENDER) {
     }
 }
 
+// ✅ 初始化 SQLite 資料庫
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error("❌ SQLite 開啟失敗：", err.message);
@@ -25,16 +26,18 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
+// ✅ 建立 orders 資料表（若尚未存在）
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS orders (
-    id TEXT PRIMARY KEY,
-    items TEXT,
-    total INTEGER,
-    created_at TEXT,
-    note TEXT,
-    table_no TEXT,
-    status TEXT DEFAULT 'pending'
-)`);
+        id TEXT PRIMARY KEY,
+        order_no TEXT,
+        items TEXT,
+        total INTEGER,
+        created_at TEXT,
+        note TEXT,
+        table_no TEXT,
+        status TEXT DEFAULT 'pending'
+    )`);
 });
 
 module.exports = db;

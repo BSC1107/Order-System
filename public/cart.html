@@ -3,19 +3,20 @@
     <head>
         <meta charset="UTF-8" />
         <title>購物車</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <script src="https://cdn.tailwindcss.com"></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap"
             rel="stylesheet"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <style>
             body {
                 font-family: "Noto Sans TC", sans-serif;
             }
         </style>
     </head>
-    <body class="bg-[#fdfaf6] text-[#3f3f3f] min-h-screen pb-28">
+    <body class="bg-[#fdfaf6] text-[#3f3f3f] min-h-screen pb-36">
+        <!-- 返回按鈕 -->
         <a
             onclick="history.back()"
             class="fixed top-4 left-4 bg-white text-gray-700 px-3 py-2 rounded-full shadow hover:bg-gray-200 flex items-center space-x-1 z-50"
@@ -23,37 +24,47 @@
             <span>🔙</span><span class="hidden sm:inline">返回</span>
         </a>
 
-        <div class="max-w-3xl mx-auto px-4 pt-16">
+        <div class="max-w-3xl mx-auto px-4 pt-16 pb-28">
             <h1 class="text-2xl font-bold text-center mb-6">🛒 購物車清單</h1>
             <ul id="cartList" class="space-y-4"></ul>
 
-            <div class="mt-8 bg-white rounded-xl p-4 shadow">
-                <div class="text-right text-lg font-semibold mb-4">
+            <!-- 訂單資訊 -->
+            <div class="mt-8 bg-white rounded-xl p-4 shadow space-y-4">
+                <div class="text-right text-lg font-semibold">
                     訂單小計：$<span id="subtotal">0</span>
                 </div>
 
-                <label class="block font-semibold mb-1">桌號：</label>
-                <input
-                    id="tableNo"
-                    type="text"
-                    class="w-full p-2 border rounded mb-4"
-                    placeholder="請輸入桌號"
-                />
+                <div>
+                    <label class="block font-semibold mb-1">桌號：</label>
+                    <input
+                        id="tableNo"
+                        type="text"
+                        class="w-full p-3 border rounded text-base"
+                        placeholder="請輸入桌號"
+                    />
+                </div>
 
-                <label class="block font-semibold mb-1">備註：</label>
-                <textarea
-                    id="note"
-                    class="w-full p-2 border rounded mb-4 text-sm"
-                    placeholder="例如：先上飲料..."
-                ></textarea>
-
-                <button
-                    onclick="submitOrder()"
-                    class="w-full bg-orange-500 text-white p-3 rounded-lg font-bold hover:bg-orange-600"
-                >
-                    ✅ 送出訂單
-                </button>
+                <div>
+                    <label class="block font-semibold mb-1">備註：</label>
+                    <textarea
+                        id="note"
+                        class="w-full p-3 border rounded text-base"
+                        placeholder="例如：先上飲料..."
+                    ></textarea>
+                </div>
             </div>
+        </div>
+
+        <!-- 固定底部送出按鈕 -->
+        <div
+            class="fixed bottom-0 left-0 right-0 bg-white border-t shadow p-4 z-40"
+        >
+            <button
+                onclick="submitOrder()"
+                class="w-full bg-orange-500 text-white py-3 rounded-lg text-lg font-bold hover:bg-orange-600"
+            >
+                ✅ 送出訂單
+            </button>
         </div>
 
         <script>
@@ -83,34 +94,33 @@
                     total += itemTotal;
 
                     const li = document.createElement("li");
-                    li.className =
-                        "bg-white p-4 rounded-lg shadow flex flex-col space-y-2";
+                    li.className = "bg-white p-4 rounded-lg shadow space-y-2";
 
                     li.innerHTML = `
-        <div class="font-bold">${item.name} ${
+          <div class="font-bold text-base">${item.name} ${
                         addonText ? `（${addonText}）` : ""
                     }</div>
-        <div class="text-sm text-gray-600">單價：$${item.price} ${
+          <div class="text-sm text-gray-600">單價：$${item.price}${
                         addonText ? ` + 加料 $${addonPrice}` : ""
                     }</div>
-        <div class="flex items-center space-x-2">
+          <div class="flex items-center gap-2">
             <label class="text-sm">數量：</label>
-            <div class="flex items-center space-x-1">
-            <button onclick="changeQty(${index}, -1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
-            <span id="qty-${index}" class="min-w-[2rem] text-center">${
+            <div class="flex items-center gap-1">
+              <button onclick="changeQty(${index}, -1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
+              <span id="qty-${index}" class="min-w-[2rem] text-center">${
                         item.qty
                     }</span>
-            <button onclick="changeQty(${index}, 1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
+              <button onclick="changeQty(${index}, 1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
             </div>
-        </div>
-        <div class="flex items-center space-x-2">
+          </div>
+          <div class="flex items-center gap-2">
             <label class="text-sm">備註：</label>
             <input type="text" value="${
                 item.note || ""
-            }" onchange="updateNote(${index}, this.value)" class="w-1/2 p-1 border rounded text-sm" />
-        </div>
-        <div class="text-sm text-gray-500">小計：$${itemTotal}</div>
-        <button onclick="removeItem(${index})" class="text-red-500 hover:underline text-sm self-end">🗑 刪除</button>
+            }" onchange="updateNote(${index}, this.value)" class="w-1/2 p-2 border rounded text-sm" />
+          </div>
+          <div class="text-sm text-gray-500">小計：$${itemTotal}</div>
+          <button onclick="removeItem(${index})" class="text-red-500 hover:underline text-sm">🗑 刪除</button>
         `;
 
                     list.appendChild(li);
