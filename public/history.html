@@ -28,6 +28,16 @@
             </a>
         </div>
 
+        <!-- 登出按鈕 -->
+        <div class="text-right max-w-4xl mx-auto mb-6">
+            <button
+                onclick="logout()"
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 font-semibold"
+            >
+                🚪 登出
+            </button>
+        </div>
+
         <div class="max-w-4xl mx-auto mb-6 text-center">
             <label for="rangeSelect" class="block mb-2 font-semibold"
                 >選擇查詢區間：</label
@@ -154,6 +164,11 @@
                     order.total
                 }</p>
             </div>`;
+            }
+
+            function logout() {
+                localStorage.removeItem("kitchenLogin");
+                location.href = "/login.html";
             }
 
             // 預設載入全部
